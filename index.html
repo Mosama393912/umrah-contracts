@@ -1,0 +1,2227 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <title>عقد رحلة عمرة - دار السفر تورز</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <!-- Use local fallback for Indexed-data (IDB) during development -->
+    <!-- تحميل مكتبة idb من CDN مباشرة -->
+    <script src="https://unpkg.com/idb@7/build/iife/index-min.js"></script>
+    <script>
+      console.log(
+        "Loaded idb from CDN: https://unpkg.com/idb@7/build/iife/index-min.js"
+      );
+    </script>
+
+    <style>
+      /* Reset / layout helper */
+      html,
+      body {
+        height: 100%;
+        box-sizing: border-box;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: inherit;
+      }
+
+      /* Responsive body padding and safe fallback for CSS var */
+      body {
+        font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+        background: var(--bg, #f7fbfd); /* fallback */
+        margin: 0;
+        padding: 20px;
+        color: #0f172a;
+        overflow-x: hidden; /* يمنع scroll أفقي غير مقصود */
+      }
+      @media (max-width: 480px) {
+        body {
+          padding: 12px;
+        }
+        form {
+          padding: 12px;
+        }
+        .serial-input {
+          width: 72px;
+          font-size: 12px;
+          padding: 4px 6px;
+        }
+      }
+
+      :root {
+        /* Dark theme palette */
+        --bg: #071023; /* page background (very dark navy) */
+        --card: #0b1724; /* card / panel background */
+        --primary: #6ad1ff; /* cyan accent for headings/buttons */
+        --accent: #ffd166; /* warm accent (buttons) */
+        --muted: #9aa6b2; /* muted text on dark bg */
+        --danger: #ff6b6b; /* danger / invalid */
+      }
+      body {
+        color: var(--muted);
+      } /* ensure general text readable on dark bg */
+      header {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+        text-align: center;
+      }
+      .logo {
+        width: 72px;
+        height: auto;
+        border-radius: 10px;
+        box-shadow: 0 6px 18px rgba(10, 20, 30, 0.6);
+      }
+      h1 {
+        margin: 6px 0;
+        color: var(--primary);
+        font-size: 28px;
+      }
+      h2 {
+        margin: 0;
+        color: var(--muted);
+        font-size: 15px;
+      }
+      form {
+        max-width: 820px;
+        margin: 8px auto;
+        background: var(--card);
+        padding: 16px;
+        border-radius: 10px;
+        box-shadow: 0 8px 20px rgba(15, 76, 129, 0.06);
+      }
+      /* serial small top-right */
+      .serial-row {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .serial-input {
+        width: 90px;
+        padding: 6px 8px;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        color: #ffffff;
+        text-align: center;
+        font-weight: 600;
+        font-size: 13px;
+      }
+      /* visual invalid state for inputs (used for phone) */
+      input.invalid {
+        border-color: var(--danger) !important;
+        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.06);
+      }
+      .row {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+      }
+      .col {
+        flex: 1;
+        min-width: 120px;
+      }
+      label {
+        display: block;
+        font-size: 13px;
+        margin: 6px 0 4px;
+        color: var(--muted);
+      }
+      input,
+      select,
+      textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 8px;
+        font-size: 15px;
+        background: rgba(255, 255, 255, 0.02);
+        color: #ffffff; /* النص داخل الحقول أبيض */
+        box-sizing: border-box;
+      }
+      input::placeholder,
+      textarea::placeholder {
+        color: rgba(255, 255, 255, 0.55);
+      }
+      input[readonly],
+      input[disabled],
+      .readonly-field {
+        background: rgba(255, 255, 255, 0.01);
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+      }
+      .actions {
+        text-align: center;
+        margin-top: 12px;
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      button {
+        background: var(--primary);
+        color: #04262a;
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        box-shadow: 0 6px 18px rgba(10, 20, 30, 0.6);
+      }
+      button.ghost {
+        background: transparent;
+        color: var(--primary);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        box-shadow: none;
+      }
+      button.accent {
+        background: var(--accent);
+        color: #04262a;
+      }
+      button.warn {
+        background: var(--danger);
+        color: #fff;
+      }
+      #contractPreview {
+        max-width: 900px;
+        margin: 18px auto;
+        background: var(--card);
+        padding: 14px;
+        border-radius: 10px;
+        box-shadow: 0 8px 20px rgba(2, 6, 23, 0.04);
+        direction: rtl;
+      }
+      .muted {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .small {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .error {
+        color: var(--danger);
+        font-size: 13px;
+        margin-top: 6px;
+      }
+      #previewFrame {
+        width: 100%;
+        height: 700px;
+        border: 0;
+        border-radius: 6px;
+      }
+      @media (max-width: 760px) {
+        .row {
+          flex-direction: column;
+        }
+        #previewFrame {
+          height: 500px;
+        }
+        .logo {
+          width: 56px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="mainContent">
+      <header>
+        <img
+          src="images/logo.png"
+          alt="DAR ELSAFAR TOURS"
+          class="logo"
+          onerror="this.style.display='none'"
+        />
+        <div>
+          <h1>دار السفر تورز</h1>
+          <h2>نموذج حجز رحلة عمرة</h2>
+        </div>
+        <div
+          id="userBox"
+          style="
+            margin-left: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+          "
+        >
+          <div
+            id="currentUser"
+            class="small"
+            style="color: var(--muted); min-width: 140px; text-align: center"
+          ></div>
+          <div style="margin-top: 8px">
+            <button id="btnLogin" class="ghost" type="button">
+              تسجيل دخول
+            </button>
+            <button
+              id="btnLogout"
+              class="ghost"
+              type="button"
+              style="display: none"
+            >
+              تسجيل خروج
+            </button>
+            <button
+              id="btnManageUsers"
+              class="ghost"
+              type="button"
+              style="display: none; margin-left: 6px"
+            >
+              إدارة المستخدمين
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <form id="umrahForm" autocomplete="off">
+        <!-- serial top-right (small readonly) -->
+        <div class="serial-row" aria-hidden="false">
+          <div style="text-align: right">
+            <label
+              for="contractSerial"
+              style="margin: 0 0 6px 0; font-size: 13px; color: var(--muted)"
+              >تسلسل العقد</label
+            >
+            <input
+              type="text"
+              id="contractSerial"
+              class="serial-input"
+              readonly
+              aria-readonly="true"
+            />
+            <div class="small" style="margin-top: 6px; color: var(--muted)">
+              ثابت — لا يمكن تعديله
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="name">الاسم الكامل</label>
+            <input type="text" id="name" required />
+          </div>
+          <div class="col">
+            <label for="phone">رقم الهاتف (بدون +)</label>
+            <input
+              type="tel"
+              id="phone"
+              placeholder="مثال: 201012345678"
+              required
+            />
+            <div id="phoneError" class="error" style="display: none"></div>
+            <label
+              for="phone2"
+              class="small"
+              style="margin-top: 8px; color: var(--muted)"
+              >رقم هاتف بديل (اختياري)</label
+            >
+            <input type="tel" id="phone2" placeholder="مثال: 201012345679" />
+            <div id="phone2Error" class="error" style="display: none"></div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <label for="nid">الرقم القومي</label>
+            <input type="text" id="nid" required />
+            <div
+              id="nidError"
+              class="error"
+              style="display: none; margin-top: 6px"
+            ></div>
+            <div
+              id="nidFields"
+              style="display: none; margin-top: 8px; gap: 8px"
+            >
+              <label
+                for="nidBirth"
+                class="small"
+                style="display: block; margin-bottom: 6px; color: var(--muted)"
+                >تاريخ الميلاد</label
+              >
+              <input
+                type="text"
+                id="nidBirth"
+                readonly
+                class="readonly-field"
+                style="width: 100%; padding: 8px; border-radius: 6px"
+              />
+              <label
+                for="nidAge"
+                class="small"
+                style="display: block; margin: 8px 0 6px; color: var(--muted)"
+                >العمر (سنة - شهر - يوم)</label
+              >
+              <input
+                type="text"
+                id="nidAge"
+                readonly
+                class="readonly-field"
+                style="width: 100%; padding: 8px; border-radius: 6px"
+              />
+            </div>
+          </div>
+          <div class="col">
+            <label for="passport">رقم جواز السفر</label>
+            <input type="text" id="passport" required />
+          </div>
+        </div>
+
+        <label for="address">العنوان</label>
+        <input type="text" id="address" required />
+
+        <div class="row">
+          <div class="col">
+            <label for="travelDate">تاريخ السفر</label>
+            <input type="date" id="travelDate" required />
+          </div>
+          <div class="col">
+            <label for="returnDate">تاريخ العودة</label>
+            <input type="date" id="returnDate" required />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <label for="roomType">نوع التسكين</label>
+            <select id="roomType">
+              <option value="SGL">SGL</option>
+              <option value="DBL">DBL</option>
+              <option value="TRPL">TRPL</option>
+            </select>
+          </div>
+          <div class="col">
+            <label for="transport">وسيلة السفر</label>
+            <select id="transport">
+              <option value="طيران">طيران</option>
+              <option value="قطار سريع">قطار سريع</option>
+              <option value="باص">باص</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col">
+            <label for="hotelMakkah">فندق مكة</label>
+            <input type="text" id="hotelMakkah" required />
+          </div>
+          <div class="col">
+            <label for="hotelMadina">فندق المدينة</label>
+            <input type="text" id="hotelMadina" required />
+          </div>
+        </div>
+
+        <label for="price">سعر الرحلة (جنيه)</label>
+        <input type="number" id="price" required />
+
+        <div
+          style="
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+          "
+        >
+          <label style="font-size: 13px; color: var(--muted)"
+            >تنزيل تلقائي بعد الإنشاء</label
+          >
+          <input
+            type="checkbox"
+            id="autoDownload"
+            title="إذا مفعل سيحمّل PDF تلقائياً بعد الإنشاء"
+          />
+        </div>
+
+        <div class="actions">
+          <button type="button" id="btnCreatePdf">إنشاء معاينة PDF</button>
+          <button type="button" id="btnDownload" class="ghost">
+            تحميل PDF
+          </button>
+          <button type="button" id="btnOpenWindow" class="ghost">
+            فتح المعاينة في نافذة جديدة
+          </button>
+          <button type="button" id="btnSave" class="accent">حفظ العقد</button>
+          <button type="button" id="btnManage" class="ghost">
+            إدارة العقود
+          </button>
+          <button type="button" id="btnNewContract" class="ghost">
+            إضافة عقد جديد
+          </button>
+          <!-- NEW -->
+          <button type="button" id="btnEdit" class="ghost">تعديل بيانات</button>
+          <button type="button" id="btnWhatsApp" class="accent">
+            مشاركة عبر واتساب
+          </button>
+
+          <!-- إضافات جديدة -->
+          <button type="button" id="btnImportExcel" class="ghost">
+            استيراد من إكسيل
+          </button>
+        </div>
+
+        <p
+          class="small"
+          id="helpText"
+          style="text-align: center; margin-top: 8px"
+        >
+          بعد إنشاء المعاينة يمكنك تحميل الملف أو مشاركته عبر واتساب. جرب
+          المشاركة على هاتفك للحصول على تجربة إرسال الملف مباشرة.
+        </p>
+      </form>
+
+      <div id="contractPreview" aria-live="polite" style="display: none">
+        <!-- inline PDF preview will be injected here -->
+      </div>
+    </div>
+    <!-- AUTH / USERS MODALS -->
+    <div
+      id="authModal"
+      style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 10000;
+        align-items: center;
+        justify-content: center;
+      "
+    >
+      <div
+        style="
+          background: var(--card);
+          padding: 16px;
+          border-radius: 8px;
+          min-width: 320px;
+          color: var(--muted);
+        "
+      >
+        <h3 style="color: var(--primary); margin-top: 0">تسجيل دخول</h3>
+        <div style="margin-top: 8px">
+          <label class="small">اسم المستخدم</label>
+          <input id="authUser" type="text" autocomplete="username" />
+        </div>
+        <div style="margin-top: 8px">
+          <label class="small">كلمة السر</label>
+          <input
+            id="authPass"
+            type="password"
+            autocomplete="current-password"
+          />
+        </div>
+        <div
+          style="
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            justify-content: flex-end;
+          "
+        >
+          <button id="authLoginBtn" class="accent">دخول</button>
+          <button id="authCreateAdminBtn" class="ghost" style="display: none">
+            إنشاء أدمن
+          </button>
+          <button id="authCloseBtn" class="ghost">إغلاق</button>
+        </div>
+        <div
+          id="authMsg"
+          class="error"
+          style="display: none; margin-top: 8px"
+        ></div>
+      </div>
+    </div>
+
+    <!-- simple user-management modal (admin only) -->
+    <div
+      id="usersModal"
+      style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 10000;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 28px;
+      "
+    >
+      <div
+        style="
+          width: 620px;
+          max-width: 96%;
+          background: var(--card);
+          color: var(--muted);
+          border-radius: 8px;
+          padding: 12px;
+        "
+      >
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          "
+        >
+          <strong style="color: var(--primary)">إدارة المستخدمين</strong>
+          <button id="usersClose" class="ghost" type="button">إغلاق</button>
+        </div>
+        <div
+          id="usersList"
+          style="margin-top: 12px; max-height: 56vh; overflow: auto"
+        ></div>
+        <div
+          style="
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 12px;
+          "
+        >
+          <button id="btnAddUser" class="accent" type="button">
+            إضافة مستخدم
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- end AUTH / USERS MODALS -->
+
+    <script>
+      // =======================
+      // Lightweight auth & users (localStorage)
+      // =======================
+      const USERS_KEY = "umrah_users_v1";
+      const CURRENT_USER_KEY = "umrah_current_user";
+
+      async function sha256Hex(s) {
+        const enc = new TextEncoder();
+        const buf = await crypto.subtle.digest("SHA-256", enc.encode(s));
+        return Array.from(new Uint8Array(buf))
+          .map((b) => b.toString(16).padStart(2, "0"))
+          .join("");
+      }
+
+      function getUsers() {
+        try {
+          return JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
+        } catch (e) {
+          return [];
+        }
+      }
+      function saveUsers(u) {
+        localStorage.setItem(USERS_KEY, JSON.stringify(u || []));
+      }
+
+      async function createUser(username, password, displayName, isAdmin) {
+        username = (username || "").trim();
+        if (!username || !password)
+          throw new Error("مطلوب اسم مستخدم وكلمة سر");
+        const users = getUsers();
+        if (users.find((x) => x.username === username))
+          throw new Error("اسم المستخدم موجود مسبقاً");
+        const hash = await sha256Hex(password);
+        users.push({
+          username,
+          displayName: displayName || username,
+          pwHash: hash,
+          isAdmin: !!isAdmin,
+        });
+        saveUsers(users);
+        return true;
+      }
+
+      async function authenticate(username, password) {
+        const users = getUsers();
+        const u = users.find((x) => x.username === (username || "").trim());
+        if (!u) return null;
+        const hash = await sha256Hex(password);
+        if (hash === u.pwHash)
+          return {
+            username: u.username,
+            displayName: u.displayName,
+            isAdmin: !!u.isAdmin,
+          };
+        return null;
+      }
+
+      function setCurrentUser(userObj) {
+        if (userObj)
+          localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userObj));
+        else localStorage.removeItem(CURRENT_USER_KEY);
+        renderCurrentUser();
+      }
+      function getCurrentUser() {
+        try {
+          return JSON.parse(localStorage.getItem(CURRENT_USER_KEY) || "null");
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function renderCurrentUser() {
+        const cur = getCurrentUser();
+        const el = document.getElementById("currentUser");
+        const btnLogin = document.getElementById("btnLogin");
+        const btnLogout = document.getElementById("btnLogout");
+        const btnManageUsers = document.getElementById("btnManageUsers");
+        if (cur) {
+          el.textContent =
+            "نشط: " +
+            (cur.displayName || cur.username) +
+            (cur.isAdmin ? " · أدمن" : "");
+          btnLogin.style.display = "none";
+          btnLogout.style.display = "inline-block";
+          btnManageUsers.style.display = cur.isAdmin ? "inline-block" : "none";
+        } else {
+          el.textContent = "غير مسجل";
+          btnLogin.style.display = "inline-block";
+          btnLogout.style.display = "none";
+          btnManageUsers.style.display = "none";
+        }
+      }
+
+      async function ensureInitialAdmin() {
+        const users = getUsers();
+        if (users.length === 0) {
+          // show auth modal in "create admin" mode and hide main UI
+          hideMainContent();
+          openAuthModal(true);
+          return true; // initial admin flow shown
+        }
+        return false;
+      }
+
+      function openAuthModal(forceCreateAdmin = false) {
+        const m = document.getElementById("authModal");
+        m.style.display = "flex";
+        document.getElementById("authMsg").style.display = "none";
+        document.getElementById("authUser").value = "";
+        document.getElementById("authPass").value = "";
+        const createBtn = document.getElementById("authCreateAdminBtn");
+        createBtn.style.display = forceCreateAdmin ? "inline-block" : "none";
+        // ensure auth modal is interactive even when main UI hidden
+        m.style.pointerEvents = "auto";
+        m.focus?.();
+      }
+
+      function closeAuthModal() {
+        document.getElementById("authModal").style.display = "none";
+      }
+
+      // دالة لتعطيل كل عناصر الصفحة حتى يتم تسجيل الدخول
+      function disableUI() {
+        hideMainContent();
+        const m = document.getElementById("authModal");
+        if (m) {
+          m.style.zIndex = "10001";
+          m.style.pointerEvents = "auto";
+        }
+        const contractsModal = document.getElementById("contractsModal");
+        if (contractsModal) contractsModal.remove();
+      }
+      function enableUI() {
+        showMainContent();
+        const m = document.getElementById("authModal");
+        if (m) m.style.zIndex = "10000";
+      }
+
+      // إخفاء كل شيء إلا authModal حتى تسجيل الدخول
+      function hideMainContent() {
+        document.getElementById("mainContent").style.display = "none";
+      }
+      function showMainContent() {
+        document.getElementById("mainContent").style.display = "";
+      }
+
+      // دالة إجبارية: لا يتم فتح أي شيء إلا بعد تسجيل الدخول
+      function requireLogin() {
+        const cur = getCurrentUser();
+        if (!cur) {
+          hideMainContent();
+          // only open auth modal in normal login mode (not override initial-admin flow)
+          openAuthModal(false);
+          return false;
+        }
+        showMainContent();
+        enableUI();
+        return true;
+      }
+
+      // تعديل حدث تسجيل الدخول: رسالة ترحيب وتفعيل الصفحة
+      document.addEventListener("DOMContentLoaded", function () {
+        renderCurrentUser();
+        const initialAdminShown = ensureInitialAdmin(); // if true, auth modal already open in create-admin mode
+        if (!initialAdminShown) requireLogin();
+
+        document
+          .getElementById("btnLogin")
+          .addEventListener("click", () => openAuthModal(false));
+        document.getElementById("btnLogout").addEventListener("click", () => {
+          setCurrentUser(null);
+          disableUI();
+          requireLogin();
+          alert("تم تسجيل الخروج");
+        });
+        document
+          .getElementById("btnManageUsers")
+          .addEventListener("click", () => openUsersModal());
+        document
+          .getElementById("authCloseBtn")
+          .addEventListener("click", () => closeAuthModal());
+        // login action
+        document
+          .getElementById("authLoginBtn")
+          .addEventListener("click", async () => {
+            try {
+              const user = document.getElementById("authUser").value;
+              const pass = document.getElementById("authPass").value;
+              const ok = await authenticate(user, pass);
+              if (!ok) {
+                document.getElementById("authMsg").style.display = "block";
+                document.getElementById("authMsg").textContent =
+                  "بيانات غير صحيحة";
+                return;
+              }
+              setCurrentUser(ok);
+              closeAuthModal();
+              enableUI();
+              document.getElementById("helpText").textContent =
+                "مرحباً " +
+                (ok.displayName || ok.username) +
+                "، تم تسجيل الدخول بنجاح!";
+              alert(
+                "مرحباً " +
+                  (ok.displayName || ok.username) +
+                  "، تم تسجيل الدخول بنجاح!"
+              );
+            } catch (e) {
+              console.error(e);
+              document.getElementById("authMsg").style.display = "block";
+              document.getElementById("authMsg").textContent =
+                e.message || "خطأ";
+            }
+          });
+
+        document
+          .getElementById("btnManage")
+          .addEventListener("click", function () {
+            if (!requireLogin()) return;
+            // Prefer advanced modal if available, otherwise fall back to any exported createContractsModal.
+            if (typeof createContractsModalAdvanced === "function") {
+              createContractsModalAdvanced();
+              return;
+            }
+            if (typeof window.createContractsModal === "function") {
+              try {
+                window.createContractsModal();
+                return;
+              } catch (e) {
+                console.warn("legacy createContractsModal failed:", e);
+              }
+            }
+            // wait briefly for advanced modal to be registered (in case script loads slightly later)
+            let waited = 0;
+            const iv = setInterval(() => {
+              waited += 200;
+              if (typeof createContractsModalAdvanced === "function") {
+                clearInterval(iv);
+                createContractsModalAdvanced();
+                return;
+              }
+              if (typeof window.createContractsModal === "function") {
+                clearInterval(iv);
+                try {
+                  window.createContractsModal();
+                } catch (e) {
+                  console.warn(e);
+                }
+                return;
+              }
+              if (waited >= 3000) {
+                clearInterval(iv);
+                alert(
+                  "لم يتم تهيئة واجهة إدارة العقود بعد. أعد تحميل الصفحة أو افتح Console لمراجعة الأخطاء."
+                );
+              }
+            }, 200);
+          });
+      });
+
+      window.addEventListener("load", requireLogin);
+
+      // =======================
+      // Debug helpers
+      // =======================
+      (function () {
+        console.log("index.html script loaded.");
+        window.addEventListener("error", (e) => {
+          console.error(
+            "Unhandled error:",
+            e.message,
+            e.filename + ":" + e.lineno
+          );
+        });
+        window.addEventListener("unhandledrejection", (e) => {
+          console.error("Unhandled promise rejection:", e.reason);
+        });
+      })();
+
+      /* Helpers */
+      function escapeHtml(text) {
+        if (text === null || text === undefined) return "";
+        return String(text)
+          .replace(/&/g, "&amp;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      /* sanitize client name to safe filename (allow Arabic, Latin, digits, space, - and _) */
+      function sanitizeForFilename(text) {
+        if (text == null) return "client";
+        const t = String(text).trim();
+        if (!t) return "client";
+        // keep Arabic \u0600-\u06FF, Latin, digits, space, dash, underscore
+        return (
+          t
+            .replace(/[^\u0600-\u06FFa-zA-Z0-9 _\-]/g, "")
+            .replace(/\s+/g, "_")
+            .slice(0, 80) || "client"
+        );
+      }
+
+      let lastPdfBlob = null;
+      let lastFilename = null;
+      // id للعقد الحالي عند الدخول في وضع التعديل (إذا كان null => إنشاء جديد)
+      let editingContractId = null;
+
+      /* Phone helpers: validate single field and overall */
+      function validatePhoneField(fieldId, showMessage = true) {
+        const el = document.getElementById(fieldId);
+        if (!el) return false;
+        const raw = (el.value || "").trim();
+        const digits = raw.replace(/\D/g, "");
+        el.value = digits;
+
+        const errEl = document.getElementById(
+          fieldId === "phone" ? "phoneError" : "phone2Error"
+        );
+
+        // phone (primary) is required
+        const required = fieldId === "phone";
+
+        if (!digits) {
+          if (required) {
+            el.classList.add("invalid");
+            if (showMessage && errEl) {
+              errEl.style.display = "block";
+              errEl.textContent = "هذا الحقل مطلوب.";
+            } else if (errEl) errEl.style.display = "none";
+            return false;
+          } else {
+            // optional and empty -> OK
+            if (errEl) errEl.style.display = "none";
+            el.classList.remove("invalid");
+            return true;
+          }
+        }
+
+        if (digits.length < 8 || digits.length > 15) {
+          el.classList.add("invalid");
+          if (showMessage && errEl) {
+            errEl.style.display = "block";
+            errEl.textContent = "رقم غير صالح — أدخل 8 إلى 15 رقمًا.";
+          } else if (errEl) errEl.style.display = "none";
+          return false;
+        }
+
+        // short but acceptable (warning) only for primary when <10
+        if (fieldId === "phone" && digits.length < 10) {
+          el.classList.remove("invalid");
+          if (showMessage && errEl) {
+            errEl.style.display = "block";
+            errEl.textContent = "يُنصح بإضافة رمز الدولة (مثال: 20 للمصريين).";
+          } else if (errEl) errEl.style.display = "none";
+          return true;
+        }
+
+        // valid
+        if (errEl) errEl.style.display = "none";
+        el.classList.remove("invalid");
+        return true;
+      }
+
+      function formatAndValidatePhone(showMessage = true) {
+        // validate primary (required) and secondary (optional)
+        const ok1 = validatePhoneField("phone", showMessage);
+        const ok2 = validatePhoneField("phone2", showMessage);
+        return ok1 && ok2;
+      }
+
+      /* === NID parsing + age calculation === */
+      function parseEgyptianNID(nid) {
+        const digits = (nid || "").replace(/\D/g, "");
+        if (digits.length !== 14)
+          return {
+            valid: false,
+            error: "الرقم القومي يجب أن يتكون من 14 رقمًا",
+          };
+        const century = digits.charAt(0);
+        const yy = parseInt(digits.substr(1, 2), 10);
+        const mm = parseInt(digits.substr(3, 2), 10);
+        const dd = parseInt(digits.substr(5, 2), 10);
+        let year;
+        if (century === "2") year = 1900 + yy;
+        else if (century === "3") year = 2000 + yy;
+        else if (century === "1") year = 1800 + yy;
+        else year = 1900 + yy; // fallback
+        const date = new Date(year, mm - 1, dd);
+        if (
+          date.getFullYear() !== year ||
+          date.getMonth() !== mm - 1 ||
+          date.getDate() !== dd
+        ) {
+          return {
+            valid: false,
+            error: "تاريخ الميلاد ضمن الرقم القومي غير صالح",
+          };
+        }
+        return { valid: true, birthDate: date };
+      }
+
+      function calcAge(birthDate) {
+        const now = new Date();
+        let years = now.getFullYear() - birthDate.getFullYear();
+        let months = now.getMonth() - birthDate.getMonth();
+        let days = now.getDate() - birthDate.getDate();
+        if (days < 0) {
+          months -= 1;
+          const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+          days += prevMonth.getDate();
+        }
+        if (months < 0) {
+          years -= 1;
+          months += 12;
+        }
+        return { years, months, days };
+      }
+
+      /* validateNID: show errors/info (non-blocking) */
+      function validateNID(showMessage = true) {
+        const nidEl = document.getElementById("nid");
+        const errEl = document.getElementById("nidError");
+        const nidFields = document.getElementById("nidFields");
+        const birthEl = document.getElementById("nidBirth");
+        const ageEl = document.getElementById("nidAge");
+        if (!nidEl) return false;
+        const raw = (nidEl.value || "").trim();
+        const parsed = parseEgyptianNID(raw);
+        if (!parsed.valid) {
+          if (showMessage) {
+            errEl.style.display = "block";
+            errEl.textContent = parsed.error;
+            if (nidFields) nidFields.style.display = "none";
+            if (birthEl) birthEl.value = "";
+            if (ageEl) ageEl.value = "";
+          }
+          return false;
+        }
+        // valid
+        errEl.style.display = "none";
+        const bd = parsed.birthDate;
+        const age = calcAge(bd);
+        if (birthEl) birthEl.value = bd.toLocaleDateString("ar-EG");
+        if (ageEl)
+          ageEl.value = `${age.years} سنة، ${age.months} شهر، ${age.days} يوم`;
+        if (nidFields) nidFields.style.display = "block";
+        return true;
+      }
+
+      /* Serial field helpers: show next serial (without consuming) and set explicit value */
+      function getCurrentSerialValue() {
+        return parseInt(localStorage.getItem(SERIAL_KEY) || "0", 10);
+      }
+      function showNextSerialInField() {
+        const el = document.getElementById("contractSerial");
+        if (!el) return;
+        const next = getCurrentSerialValue() + 1;
+        el.value = String(next);
+      }
+      function setSerialFieldValue(v) {
+        const el = document.getElementById("contractSerial");
+        if (!el) return;
+        el.value = v != null ? String(v) : "";
+      }
+
+      /* ensure serial shown on initial load */
+      document.addEventListener("DOMContentLoaded", function () {
+        // existing NID listeners...
+        const nid = document.getElementById("nid");
+        if (nid) {
+          nid.addEventListener("blur", () => validateNID(true));
+          nid.addEventListener("input", () => validateNID(false));
+        }
+        // phone listeners
+        const phone = document.getElementById("phone");
+        if (phone) {
+          phone.addEventListener("blur", () =>
+            validatePhoneField("phone", true)
+          );
+          phone.addEventListener("input", () =>
+            validatePhoneField("phone", false)
+          );
+        }
+        const phone2 = document.getElementById("phone2");
+        if (phone2) {
+          phone2.addEventListener("blur", () =>
+            validatePhoneField("phone2", true)
+          );
+          phone2.addEventListener("input", () =>
+            validatePhoneField("phone2", false)
+          );
+        }
+        // set serial display (next available)
+        showNextSerialInField();
+      });
+
+      // Optionally call validateNID() before saving to ensure user sees warning
+      const originalSaveCurrentContract = window.saveCurrentContract;
+      if (typeof originalSaveCurrentContract === "function") {
+        window.saveCurrentContract = async function (...args) {
+          // show validation; do not block saving but warn user
+          const valid = validateNID(true);
+          if (!valid) {
+            if (!confirm("الرقم القومي غير صالح. هل تريد المتابعة بالحفظ؟"))
+              return;
+          }
+          return await originalSaveCurrentContract.apply(this, args);
+        };
+      }
+
+      /* Build contract HTML (for PDF content) */
+      function buildContractHtml(data) {
+        const now = new Date().toLocaleString("ar-EG"); // تاريخ ووقت الآن
+        return `
+        <div id="contractContent" style="direction: rtl; font-family: Arial, sans-serif; color:#0b2b25; padding:12px;">
+          <div style="text-align:center; margin-bottom:8px;">
+            <h2 style="margin:0;color:#0f4c81">عقد رحلة عمرة</h2>
+            <div style="color:#6b7280;font-size:13px;margin-top:6px;">DAR ELSAFAR TOURS</div>
+            <div style="color:#777;font-size:11px;margin-top:2px;">تاريخ الإنشاء: ${escapeHtml(
+              now
+            )}</div>
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:14px;">
+            <tbody>
+              <tr><td style="padding:6px;width:28%"><strong>الاسم:</strong></td><td style="padding:6px;">${escapeHtml(
+                data.name
+              )}</td></tr>
+              <tr><td style="padding:6px"><strong>رقم الهاتف:</strong></td><td style="padding:6px;">${escapeHtml(
+                data.phone
+              )}</td></tr>
+              <tr><td style="padding:6px"><strong>الرقم القومي:</strong></td><td style="padding:6px;">${escapeHtml(
+                data.nid
+              )}</td></tr>
+              <tr><td style="padding:6px"><strong>تاريخ الميلاد (من الرقم القومي):</strong></td><td style="padding:6px;">${escapeHtml(
+                data.nidBirth || ""
+              )}</td></tr>
+              <tr><td style="padding:6px"><strong>العمر (من الرقم القومي):</strong></td><td style="padding:6px;">${escapeHtml(
+                data.nidAge || ""
+              )}</td></tr>
+              <tr><td style="padding:6px"><strong>جواز السفر:</strong></td><td style="padding:6px;">${escapeHtml(
+                data.passport
+              )}</td></tr>
+              <tr><td style="padding:6px"><strong>العنوان:</strong></td><td style="padding:6px;">${escapeHtml(
+                data.address
+              )}</td></tr>
+              <tr><td style="padding:6px"><strong>تاريخ السفر:</strong></td><td style="padding:6px;">${escapeHtml(
+                data.travelDate
+              )}</td></tr>
+              <tr><td style="padding:6px"><strong>تاريخ العودة:</strong></td><td style="padding:6px;">${escapeHtml(
+                data.returnDate
+              )}</td></tr>
+              <tr><td style="padding:6px"><strong>نوع التسكين:</strong></td><td style="padding:6px;">${escapeHtml(
+                data.roomType
+              )}</td></tr>
+              <tr><td style="padding:6px"><strong>وسيلة السفر:</strong></td><td style="padding:6px;">${escapeHtml(
+                data.transport
+              )}</td></tr>
+              <tr><td style="padding:6px"><strong>فندق مكة:</strong></td><td style="padding:6px;">${escapeHtml(
+                data.hotelMakkah
+              )}</td></tr>
+              <tr><td style="padding:6px"><strong>فندق المدينة:</strong></td><td style="padding:6px;">${escapeHtml(
+                data.hotelMadina
+              )}</td></tr>
+              <tr><td style="padding:6px"><strong>السعر:</strong></td><td style="padding:6px;">${escapeHtml(
+                data.price
+              )} جنيه</td></tr>
+            </tbody>
+          </table>
+          <div style="margin-top:18px;font-size:13px;color:#374151;">
+            <p>باقي بنود العقد كما تم الاتفاق عليها مع الشركة، ويقر الطرف الثاني بصحة البيانات والتزامه بالشروط.</p>
+            <p style="margin-top:30px;"><strong>الطرف الأول:</strong> DAR ELSAFAR TOURS</p>
+            <p><strong>الطرف الثاني:</strong> ${escapeHtml(data.name)}</p>
+            <p style="margin-top:20px;">التوقيع: ........................................</p>
+          </div>
+        </div>
+      `;
+      }
+
+      const SERIAL_KEY = "umrah_contracts_serial";
+
+      function getNextSerial() {
+        let serial = parseInt(localStorage.getItem(SERIAL_KEY) || "0", 10); // ابدأ من 0
+        serial++; // ثم زد الرقم
+        localStorage.setItem(SERIAL_KEY, serial.toString());
+        return serial;
+      }
+
+      /* create PDF: now previews inline (iframe) and optionally auto-download */
+      async function createPdfPreview() {
+        // validate phones and block if primary invalid (phone2 optional)
+        if (!formatAndValidatePhone(true)) {
+          // ensure user sees the error message on the form
+          alert("الرجاء تصحيح رقم الهاتف الأساسي قبل إنشاء المعاينة.");
+          return false;
+        }
+
+        const data = {
+          name: document.getElementById("name").value,
+          phone: document.getElementById("phone").value,
+          phone2: document.getElementById("phone2")
+            ? document.getElementById("phone2").value
+            : "",
+          nid: document.getElementById("nid").value,
+          nidBirth: document.getElementById("nidBirth")
+            ? document.getElementById("nidBirth").value
+            : "",
+          nidAge: document.getElementById("nidAge")
+            ? document.getElementById("nidAge").value
+            : "",
+          passport: document.getElementById("passport").value,
+          address: document.getElementById("address").value,
+          travelDate: document.getElementById("travelDate").value,
+          returnDate: document.getElementById("returnDate").value,
+          roomType: document.getElementById("roomType").value,
+          transport: document.getElementById("transport").value,
+          hotelMakkah: document.getElementById("hotelMakkah").value,
+          hotelMadina: document.getElementById("hotelMadina").value,
+          price: document.getElementById("price").value,
+        };
+
+        const previewDiv = document.getElementById("contractPreview");
+        previewDiv.style.display = "block";
+        previewDiv.innerHTML =
+          '<div style="padding:8px;text-align:center;color:var(--muted)">جارٍ إنشاء المعاينة... الرجاء الانتظار</div>';
+
+        await new Promise((r) => setTimeout(r, 200));
+        // create a temporary DOM element with contract HTML, then render to PDF
+        const container = document.createElement("div");
+        container.innerHTML = buildContractHtml(data);
+        document.body.appendChild(container); // required for some html2canvas useCORS features
+
+        const opt = {
+          margin: 0.5,
+          filename:
+            "contract_" + new Date().toISOString().slice(0, 10) + ".pdf",
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true },
+          jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+        };
+
+        try {
+          const jspdfObj = await html2pdf()
+            .set(opt)
+            .from(container)
+            .toPdf()
+            .get("pdf");
+          const blob = jspdfObj.output("blob");
+          lastPdfBlob = blob;
+          lastFilename = opt.filename;
+
+          // cleanup temp container
+          container.remove();
+
+          // preview inline using iframe
+          const url = URL.createObjectURL(blob);
+          previewDiv.innerHTML =
+            '<iframe id="previewFrame" src="' + url + '"></iframe>';
+
+          // auto-download if option checked
+          const auto = document.getElementById("autoDownload").checked;
+          if (auto) {
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = lastFilename;
+            a.style.display = "none";
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+              URL.revokeObjectURL(url);
+              a.remove();
+            }, 15000);
+            console.log("Auto-download started for", lastFilename);
+          } else {
+            // revoke objectURL later when user downloads or opens new window
+            setTimeout(() => {
+              try {
+                URL.revokeObjectURL(url);
+              } catch (e) {}
+            }, 60000);
+          }
+
+          // update help text
+          document.getElementById("helpText").textContent =
+            'المعاينة مبينة أدناه. استخدم "تحميل PDF" أو "مشاركة عبر واتساب".';
+          return true;
+        } catch (err) {
+          console.error("PDF creation error", err);
+          container.remove();
+          previewDiv.innerHTML =
+            '<div style="font-family:Arial;padding:20px;text-align:center;color:#a00">فشل إنشاء المعاينة. افتح Console للتفاصيل.</div>';
+          alert("فشل إنشاء الـ PDF. افتح Console للمزيد من التفاصيل.");
+          return false;
+        }
+      }
+
+      /* Download button handler */
+      function downloadLastPdf() {
+        if (!lastPdfBlob || !lastFilename) {
+          alert('لا يوجد ملف PDF مُنشأ. اضغط "إنشاء معاينة PDF" أولاً.');
+          return;
+        }
+        const url = URL.createObjectURL(lastPdfBlob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = lastFilename;
+        a.style.display = "none";
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          URL.revokeObjectURL(url);
+          a.remove();
+        }, 20000);
+      }
+
+      /* Open preview in new window (PDF blob) */
+      function openPreviewWindow() {
+        if (!lastPdfBlob) {
+          alert("أنشئ المعاينة أولاً.");
+          return;
+        }
+        const url = URL.createObjectURL(lastPdfBlob);
+        const w = window.open(url, "_blank");
+        if (!w) {
+          alert(
+            "المتصفح منع فتح النوافذ. فعّل النوافذ المنبثقة ثم أعد المحاولة."
+          );
+        }
+        setTimeout(() => {
+          try {
+            URL.revokeObjectURL(url);
+          } catch (e) {}
+        }, 60000);
+      }
+
+      /* Upload to anonymous host (fallback) */
+      async function uploadToAnonymousHost(blob, filename) {
+        const form = new FormData();
+        form.append(
+          "file",
+          new File([blob], filename || "contract.pdf", {
+            type: "application/pdf",
+          })
+        );
+        const res = await fetch("https://api.anonymousfiles.io/", {
+          method: "POST",
+          body: form,
+        });
+        if (!res.ok) {
+          const txt = await res.text();
+          throw new Error("Upload failed: " + res.status + " " + txt);
+        }
+        const json = await res.json();
+        if (json && json.url && json.url.full) return json.url.full;
+        if (
+          json &&
+          json.data &&
+          json.data.file &&
+          json.data.file.url &&
+          json.data.file.url.full
+        )
+          return json.data.file.url.full;
+        if (json && json.file && json.file.url) return json.file.url;
+        throw new Error("Unexpected upload response: " + JSON.stringify(json));
+      }
+
+      /* Share via WhatsApp: try Web Share (file), else upload to anonymous host and send link, else fallback download + wa.me instruction */
+      async function sendPdfToWhatsApp() {
+        if (!lastPdfBlob || !lastFilename) {
+          alert("أنشئ معاينة PDF أولاً.");
+          return;
+        }
+        if (!formatAndValidatePhone(true)) return;
+
+        const phone = (document.getElementById("phone").value || "").trim();
+        const digits = phone.replace(/\D/g, "");
+
+        // 1) Web Share API with file (best on mobile)
+        try {
+          const file = new File([lastPdfBlob], lastFilename || "contract.pdf", {
+            type: "application/pdf",
+          });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              files: [file],
+              title: "عقد رحلة عمرة",
+              text: `عقد الرحلة — ${
+                document.getElementById("name").value || ""
+              }`,
+            });
+            return;
+          }
+        } catch (err) {
+          console.warn("Web Share (file) not available or failed:", err);
+        }
+
+        // 2) Upload to anonymous host and send public link via wa.me
+        try {
+          document.getElementById("helpText").textContent =
+            "يرجى الانتظار... يتم رفع الملف ثم فتح محادثة واتساب.";
+          const publicUrl = await uploadToAnonymousHost(
+            lastPdfBlob,
+            lastFilename
+          );
+          const text = encodeURIComponent(
+            `مرحبا ${
+              document.getElementById("name").value || ""
+            }\nرابط معاينة عقد رحلتك:\n${publicUrl}`
+          );
+          window.open(`https://wa.me/${digits}?text=${text}`, "_blank");
+          return;
+        } catch (err) {
+          console.warn("Upload to anonymous host failed:", err);
+        }
+
+        // 3) Fallback: force local download then open wa.me with instruction
+        try {
+          const url = URL.createObjectURL(lastPdfBlob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = lastFilename || "contract.pdf";
+          a.style.display = "none";
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => {
+            URL.revokeObjectURL(url);
+            a.remove();
+          }, 20000);
+
+          const text = encodeURIComponent(
+            `مرحبا ${
+              document.getElementById("name").value || ""
+            }\nلقد نزلت معاينة عقد رحلتك ("${
+              lastFilename || "contract.pdf"
+            }") على جهازي.\nالرجاء إرفاق الملف وإرساله في هذه المحادثة.`
+          );
+          window.open(`https://wa.me/${digits}?text=${text}`, "_blank");
+        } catch (err) {
+          console.error("Fallback send to WhatsApp failed:", err);
+          alert(
+            "حدث خطأ أثناء محاولة المشاركة عبر واتساب. افتح Console للتفاصيل."
+          );
+        } finally {
+          document.getElementById("helpText").textContent =
+            "بعد إنشاء المعاينة يمكنك تحميل الملف أو مشاركته عبر واتساب.";
+        }
+      }
+
+      // Keyboard shortcuts: Ctrl+S => save, Ctrl+P => print
+      document.addEventListener("keydown", function (e) {
+        const key = (e.key || "").toLowerCase();
+        if ((e.ctrlKey || e.metaKey) && key === "s") {
+          e.preventDefault();
+          try {
+            saveCurrentContract();
+          } catch (err) {
+            console.error("Save shortcut failed", err);
+          }
+        }
+        if ((e.ctrlKey || e.metaKey) && key === "p") {
+          e.preventDefault();
+          try {
+            printLastPdf();
+          } catch (err) {
+            console.error("Print shortcut failed", err);
+          }
+        }
+      });
+
+      // Import contracts from Excel (.xlsx) — adds new contracts, assigns serials
+      async function importContractsFromExcel(file) {
+        // simple wrapper: use preview flow (importExcelAndPreview) if available,
+        // else perform direct import into IndexedDB 'contracts'
+        if (!file) return;
+        if (typeof importExcelAndPreview === "function") {
+          return importExcelAndPreview(file);
+        }
+        try {
+          const data = await file.arrayBuffer();
+          const wb = XLSX.read(data, { type: "array" });
+          const sheetName = wb.SheetNames[0];
+          const ws = wb.Sheets[sheetName];
+          const rows = XLSX.utils.sheet_to_json(ws, { defval: "" });
+          if (!rows || rows.length === 0) {
+            showToast
+              ? showToast("لا توجد بيانات في ورقة الإكسيل.", "warn")
+              : alert("لا توجد بيانات في ورقة الإكسيل.");
+            return;
+          }
+          let imported = 0;
+          for (let idx = 0; idx < rows.length; idx++) {
+            const r = rows[idx];
+            const item = {
+              id: Date.now().toString() + "_" + idx,
+              createdAt: r.createdAt || new Date().toISOString(),
+              name: r.name || r["الاسم"] || "",
+              phone: r.phone || r["phone"] || "",
+              nid: r.nid || r["nid"] || "",
+              passport: r.passport || r["passport"] || "",
+              address: r.address || r["address"] || "",
+              travelDate: r.travelDate || r["travelDate"] || "",
+              returnDate: r.returnDate || r["returnDate"] || "",
+              roomType: r.roomType || r["roomType"] || "",
+              transport: r.transport || r["transport"] || "",
+              hotelMakkah: r.hotelMakkah || r["hotelMakkah"] || "",
+              hotelMadina: r.hotelMadina || r["hotelMadina"] || "",
+              price: r.price || r["price"] || "",
+              filename: r.filename || "",
+              serial: getNextSerial(),
+            };
+            if (!item.name && !item.phone) continue;
+            try {
+              await IDB.put("contracts", item);
+              imported++;
+            } catch (e) {
+              console.error("Failed to import row", idx, e);
+            }
+          }
+          showToast
+            ? showToast(
+                `تم استيراد ${imported} صف(صفوف) من الإكسيل.`,
+                "success"
+              )
+            : alert("تم الاستيراد.");
+        } catch (err) {
+          console.error("Import Excel failed", err);
+          showToast
+            ? showToast("فشل استيراد الملف. افتح Console للمزيد.", "error")
+            : alert("فشل استيراد الملف. افتح Console للمزيد.");
+        }
+      }
+
+      // small helper to create a hidden file input and trigger import
+      function triggerImportExcel() {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = ".xlsx,.xls";
+        input.onchange = function (e) {
+          const f = e.target.files && e.target.files[0];
+          if (!f) return;
+          importContractsFromExcel(f);
+        };
+        input.click();
+      }
+
+      // USER MANAGEMENT: implement openUsersModal, change role, change password, prevent deleting last admin
+      function changeUserPassword(username, newPassword) {
+        const cur = getCurrentUser();
+        if (!cur || !cur.isAdmin) {
+          alert("غير مصرح لك بتغيير كلمة السر.");
+          return;
+        }
+        if (!username || !newPassword) {
+          alert("اسم مستخدم وكلمة سر جديدة مطلوبة.");
+          return;
+        }
+        getUsers(); // ensure
+        (async () => {
+          const users = getUsers();
+          const idx = users.findIndex((u) => u.username === username);
+          if (idx === -1) {
+            alert("المستخدم غير موجود.");
+            return;
+          }
+          users[idx].pwHash = await sha256Hex(newPassword);
+          saveUsers(users);
+          alert("تم تغيير كلمة السر للمستخدم: " + username);
+          openUsersModal();
+        })();
+      }
+
+      function changeUserRole(username, makeAdmin) {
+        const cur = getCurrentUser();
+        if (!cur || !cur.isAdmin) {
+          alert("غير مصرح لك بتعديل دور المستخدم.");
+          return;
+        }
+        const users = getUsers();
+        const idx = users.findIndex((u) => u.username === username);
+        if (idx === -1) {
+          alert("المستخدم غير موجود.");
+          return;
+        }
+        // Prevent removing last admin
+        if (!makeAdmin) {
+          const admins = users.filter((u) => u.isAdmin);
+          if (admins.length <= 1 && users[idx].isAdmin) {
+            alert("لا يمكن إزالة صلاحية الأدمن من آخر أدمن.");
+            return;
+          }
+        }
+        users[idx].isAdmin = !!makeAdmin;
+        saveUsers(users);
+        openUsersModal();
+      }
+
+      function openUsersModal() {
+        const cur = getCurrentUser();
+        if (!cur || !cur.isAdmin) {
+          alert("غير مصرح لك. فقط الأدمن يمكنه إدارة المستخدمين.");
+          return;
+        }
+        const m = document.getElementById("usersModal");
+        const list = document.getElementById("usersList");
+        const users = getUsers();
+        list.innerHTML = users
+          .map((u) => {
+            return `
+              <div style="padding:10px;border-radius:6px;background:rgba(255,255,255,0.02);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                  <strong>${escapeHtml(u.displayName || u.username)}</strong>
+                  <div class="small" style="color:var(--muted)">(${escapeHtml(
+                    u.username
+                  )}) ${u.isAdmin ? "· أدمن" : ""}</div>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <button data-username="${escapeHtml(
+                    u.username
+                  )}" class="btnChangePw" style="background:#ffd166;color:#222;border:0;padding:6px 10px;border-radius:6px;cursor:pointer;">تغيير كلمة السر</button>
+                  <button data-username="${escapeHtml(
+                    u.username
+                  )}" data-action="${
+              u.isAdmin ? "demote" : "promote"
+            }" class="btnToggleRole" style="background:#6ad1ff;color:#04262a;border:0;padding:6px 8px;border-radius:6px;cursor:pointer;">${
+              u.isAdmin ? "إزالة أدمن" : "جعل أدمن"
+            }</button>
+                  <button data-username="${escapeHtml(
+                    u.username
+                  )}" class="btnDelUser" style="background:#ef4444;color:#fff;border:0;padding:6px 8px;border-radius:6px;cursor:pointer;">حذف</button>
+                </div>
+              </div>
+            `;
+          })
+          .join("");
+        m.style.display = "flex";
+
+        // attach handlers
+        Array.from(m.querySelectorAll(".btnDelUser")).forEach((b) => {
+          b.onclick = function () {
+            const usr = this.getAttribute("data-username");
+            if (!usr) return;
+            if (!confirm("حذف المستخدم " + usr + " ؟")) return;
+            const users = getUsers();
+            const toDelete = users.find((x) => x.username === usr);
+            if (!toDelete) return;
+            if (toDelete.isAdmin) {
+              const admins = users.filter((x) => x.isAdmin);
+              if (admins.length <= 1) {
+                alert("لا يمكن حذف آخر أدمن.");
+                return;
+              }
+            }
+            if (usr === cur.username) {
+              alert("لا يمكنك حذف حسابك الحالي.");
+              return;
+            }
+            const arr = users.filter((x) => x.username !== usr);
+            saveUsers(arr);
+            openUsersModal();
+          };
+        });
+
+        Array.from(m.querySelectorAll(".btnChangePw")).forEach((b) => {
+          b.onclick = async function () {
+            const usr = this.getAttribute("data-username");
+            if (!usr) return;
+            const newPw = prompt("أدخل كلمة السر الجديدة للمستخدم: " + usr);
+            if (!newPw) return;
+            await changeUserPassword(usr, newPw);
+          };
+        });
+
+        Array.from(m.querySelectorAll(".btnToggleRole")).forEach((b) => {
+          b.onclick = function () {
+            const usr = this.getAttribute("data-username");
+            const action = this.getAttribute("data-action");
+            if (!usr) return;
+            const makeAdmin = action === "promote";
+            changeUserRole(usr, makeAdmin);
+          };
+        });
+
+        const closeBtn = document.getElementById("usersClose");
+        if (closeBtn) closeBtn.onclick = () => (m.style.display = "none");
+
+        const addBtn = document.getElementById("btnAddUser");
+        if (addBtn) {
+          addBtn.onclick = async function () {
+            const username = prompt("اسم المستخدم (حروف/أرقام)") || "";
+            if (!username) return;
+            const display =
+              prompt("الاسم الظاهر في العقود (مثال: محمد علي)") || username;
+            const pass = prompt("كلمة السر للمستخدم") || "";
+            if (!pass) {
+              alert("كلمة سر مطلوبة");
+              return;
+            }
+            try {
+              await createUser(username, pass, display, false);
+              alert("تم إضافة المستخدم: " + username);
+              openUsersModal();
+            } catch (e) {
+              alert("فشل إضافة المستخدم: " + (e.message || e));
+            }
+          };
+        }
+      }
+
+      // Bind new buttons safely
+      (function bindNewButtons() {
+        document.addEventListener("DOMContentLoaded", function () {
+          const safeBind = (id, fn) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.addEventListener("click", fn);
+          };
+          safeBind("btnPrint", function () {
+            printLastPdf();
+          });
+          safeBind("btnImportExcel", function () {
+            triggerImportExcel();
+          });
+          safeBind("btnManageUsers", function () {
+            openUsersModal();
+          });
+          // ensure btnDownload uses lastFilename if available
+          safeBind("btnDownload", function () {
+            if (!lastPdfBlob) {
+              alert('لا يوجد ملف PDF مُنشأ. اضغط "إنشاء معاينة PDF" أولاً.');
+              return;
+            }
+            const url = URL.createObjectURL(lastPdfBlob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = lastFilename || generatePdfFilename();
+            a.style.display = "none";
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {}, 20000);
+          });
+        });
+      })();
+
+      // Fix: bind missing buttons and provide small implementations for missing helpers
+      (function () {
+        const CONTRACTS_KEY = "umrah_contracts_v1";
+
+        function getSavedContracts() {
+          try {
+            return JSON.parse(localStorage.getItem(CONTRACTS_KEY) || "[]");
+          } catch (e) {
+            return [];
+          }
+        }
+        function saveContractsArray(arr) {
+          localStorage.setItem(CONTRACTS_KEY, JSON.stringify(arr || []));
+        }
+
+        async function saveCurrentContract() {
+          // minimal save implementation to avoid missing-function errors
+          if (
+            !validateRequiredFields?.() &&
+            typeof validateRequiredFields === "function"
+          ) {
+            // validateRequiredFields already shows messages
+            return;
+          }
+          const cur = getCurrentUser();
+          if (!cur) {
+            alert("يجب تسجيل الدخول لحفظ العقد.");
+            return;
+          }
+          const now = new Date().toISOString();
+          const form = document.getElementById("umrahForm");
+          if (!form) return;
+          const data = {
+            id: editingContractId || Date.now().toString(),
+            createdAt: now,
+            serial:
+              document.getElementById("contractSerial")?.value ||
+              getNextSerial(),
+            name: document.getElementById("name")?.value || "",
+            phone: document.getElementById("phone")?.value || "",
+            phone2: document.getElementById("phone2")?.value || "",
+            nid: document.getElementById("nid")?.value || "",
+            passport: document.getElementById("passport")?.value || "",
+            address: document.getElementById("address")?.value || "",
+            travelDate: document.getElementById("travelDate")?.value || "",
+            returnDate: document.getElementById("returnDate")?.value || "",
+            roomType: document.getElementById("roomType")?.value || "",
+            transport: document.getElementById("transport")?.value || "",
+            hotelMakkah: document.getElementById("hotelMakkah")?.value || "",
+            hotelMadina: document.getElementById("hotelMadina")?.value || "",
+            price: document.getElementById("price")?.value || "",
+            filename: lastFilename || "",
+            savedBy: cur.username,
+          };
+
+          const arr = getSavedContracts();
+          const idx = arr.findIndex((x) => x.id === data.id);
+          if (idx !== -1) arr[idx] = data;
+          else arr.unshift(data);
+
+          saveContractsArray(arr);
+          editingContractId = data.id;
+          // update serial field to current serial if newly consumed
+          if (document.getElementById("contractSerial")) {
+            setSerialFieldValue(data.serial);
+          }
+          alert("تم حفظ العقد.");
+          return true;
+        }
+
+        function createContractsModal() {
+          // simple modal: show list of saved contracts in an alert (keeps change minimal)
+          const arr = getSavedContracts();
+          if (!arr || arr.length === 0) {
+            alert("لا توجد عقود محفوظة حالياً.");
+            return;
+          }
+          const lines = arr
+            .slice(0, 50)
+            .map((c) => `${c.serial} - ${c.name} - ${c.phone}`);
+          alert("العقود المحفوظة (أول 50):\n" + lines.join("\n"));
+        }
+
+        function newContract() {
+          document.getElementById("umrahForm")?.reset();
+          editingContractId = null;
+          showNextSerialInField();
+          document.getElementById("contractPreview").style.display = "none";
+          lastPdfBlob = null;
+          lastFilename = null;
+        }
+
+        function editData() {
+          if (!editingContractId) {
+            alert(
+              "لا يوجد عقد مفتوح للتعديل. افتح عقد محفوظ أولاً من إدارة العقود."
+            );
+            return;
+          }
+          const arr = getSavedContracts();
+          const c = arr.find((x) => x.id === editingContractId);
+          if (!c) {
+            alert("تعذر العثور على بيانات العقد المفتوح.");
+            return;
+          }
+          // populate form
+          [
+            "name",
+            "phone",
+            "phone2",
+            "nid",
+            "passport",
+            "address",
+            "travelDate",
+            "returnDate",
+            "roomType",
+            "transport",
+            "hotelMakkah",
+            "hotelMadina",
+            "price",
+          ].forEach((k) => {
+            if (document.getElementById(k) && c[k] !== undefined)
+              document.getElementById(k).value = c[k];
+          });
+          setSerialFieldValue(c.serial);
+          alert("تم تعبئة النموذج من العقد المحفوظ. عدل ثم احفظ.");
+        }
+
+        function generatePdfFilename() {
+          const name =
+            (document.getElementById("name")?.value || "").trim() || "client";
+          const safe = sanitizeForFilename(name);
+          const serial =
+            document.getElementById("contractSerial")?.value ||
+            String(getCurrentSerialValue() + 1);
+          const date = new Date();
+          const dateStr = date.toISOString().slice(0, 10);
+          const timeStr = date.toTimeString().slice(0, 5).replace(":", "");
+          return `${safe}_S${serial}_${dateStr}_${timeStr}.pdf`.replace(
+            /\s+/g,
+            "_"
+          );
+        }
+
+        function printLastPdf() {
+          if (!lastPdfBlob) {
+            alert("أنشئ معاينة PDF أولاً.");
+            return;
+          }
+          const url = URL.createObjectURL(lastPdfBlob);
+          const w = window.open(url);
+          if (!w) {
+            alert(
+              "المتصفح منع فتح النوافذ. فعّل النوافذ المنبثقة ثم أعد المحاولة."
+            );
+          } else {
+            // user can print from new tab
+          }
+          setTimeout(() => {
+            try {
+              URL.revokeObjectURL(url);
+            } catch (e) {}
+          }, 60000);
+        }
+
+        // central binder for remaining buttons
+        function bindAllButtons() {
+          const safe = (id, fn) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.removeEventListener("click", fn); // harmless if not attached
+            el.addEventListener("click", fn);
+          };
+          safe("btnCreatePdf", createPdfPreview);
+          safe("btnOpenWindow", openPreviewWindow);
+          safe("btnSave", saveCurrentContract);
+          safe("btnManage", function () {
+            if (!requireLogin()) return;
+            // Prefer advanced modal if available, otherwise fall back to any exported createContractsModal.
+            if (typeof createContractsModalAdvanced === "function") {
+              createContractsModalAdvanced();
+              return;
+            }
+            if (typeof window.createContractsModal === "function") {
+              try {
+                window.createContractsModal();
+                return;
+              } catch (e) {
+                console.warn("legacy createContractsModal failed:", e);
+              }
+            }
+            // wait briefly for advanced modal to be registered (in case script loads slightly later)
+            let waited = 0;
+            const iv = setInterval(() => {
+              waited += 200;
+              if (typeof createContractsModalAdvanced === "function") {
+                clearInterval(iv);
+                createContractsModalAdvanced();
+                return;
+              }
+              if (typeof window.createContractsModal === "function") {
+                clearInterval(iv);
+                try {
+                  window.createContractsModal();
+                } catch (e) {
+                  console.warn(e);
+                }
+                return;
+              }
+              if (waited >= 3000) {
+                clearInterval(iv);
+                alert(
+                  "لم يتم تهيئة واجهة إدارة العقود بعد. أعد تحميل الصفحة أو افتح Console لمراجعة الأخطاء."
+                );
+              }
+            }, 200);
+          });
+          safe("btnNewContract", newContract);
+          safe("btnEdit", editData);
+          safe("btnWhatsApp", sendPdfToWhatsApp);
+          // reuse existing safe binds for download/print/import in other block (no harm calling again)
+          safe("btnPrint", printLastPdf);
+          safe("btnDownload", function () {
+            if (!lastPdfBlob) {
+              alert('لا يوجد ملف PDF مُنشأ. اضغط "إنشاء معاينة PDF" أولاً.');
+              return;
+            }
+            const url = URL.createObjectURL(lastPdfBlob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = lastFilename || generatePdfFilename();
+            a.style.display = "none";
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {}, 20000);
+          });
+        }
+
+        // call on DOMContentLoaded
+        document.addEventListener("DOMContentLoaded", function () {
+          bindAllButtons();
+        });
+
+        // also
+
+        // Export key helpers to global scope so earlier event-listeners can call them
+        // (fixes ReferenceError when functions are defined inside this IIFE)
+        window.getSavedContracts = getSavedContracts;
+        window.saveContractsArray = saveContractsArray;
+        window.saveCurrentContract = saveCurrentContract;
+
+        // Ensure we don't overwrite an existing implementation.
+        // If an implementation exists, keep it (and store a backup); otherwise provide a lightweight no-op.
+        if (typeof window.createContractsModal !== "function") {
+          // Provide a safe no-op fallback so callers can call createContractsModal() without error
+          // until an advanced implementation (createContractsModalAdvanced) is available.
+          window.createContractsModal = function () {
+            /* no-op fallback; advanced modal will replace this when loaded */
+          };
+          // mark fallback for debugging if needed
+          window.createContractsModal._isFallback = true;
+        } else {
+          // preserve original under a safe name in case patches want to wrap it later
+          if (!window._createContractsModalOrig)
+            window._createContractsModalOrig = window.createContractsModal;
+        }
+      })();
+
+      // ==== تحسين مودال إدارة العقود + مثال استيراد إكسيل ====
+      // يوفر زر تحميل نموذج إكسيل، واستيراد بواجهة معاينة تسمح إدخال صف محدد في النموذج
+      function downloadExcelTemplate() {
+        const headers = [
+          [
+            "createdAt",
+            "name",
+            "phone",
+            "nid",
+            "passport",
+            "address",
+            "travelDate",
+            "returnDate",
+            "roomType",
+            "transport",
+            "hotelMakkah",
+            "hotelMadina",
+            "price",
+            "filename",
+          ],
+        ];
+        // مثال صف واحد يوضّح التنسيقات المتوقعة
+        const sampleRow = [
+          new Date().toISOString(),
+          "محمد أحمد",
+          "201012345678",
+          "30101234567890",
+          "A1234567",
+          "القاهرة - مصر",
+          "2025-12-01",
+          "2025-12-12",
+          "DBL",
+          "طيران",
+          "Hilton Makkah",
+          "Anwar Madina",
+          2500,
+          "",
+        ];
+        const aoa = headers.concat([sampleRow]);
+        const ws = XLSX.utils.aoa_to_sheet(aoa);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "template");
+        const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+        const blob = new Blob([wbout], { type: "application/octet-stream" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "umrah_import_template.xlsx";
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          URL.revokeObjectURL(url);
+          a.remove();
+        }, 20000);
+      }
+
+      // عند استدعاء زر الاستيراد، نعرض معاينة للصفوف ثم نسمح للمستخدم بنقل صف معين للنموذج
+      async function importExcelAndPreview(file) {
+        try {
+          const data = await file.arrayBuffer();
+          const wb = XLSX.read(data, { type: "array" });
+          const sheetName = wb.SheetNames && wb.SheetNames[0];
+          const ws = wb.Sheets[sheetName];
+          const rows = XLSX.utils.sheet_to_json(ws, { defval: "" });
+          if (!rows || rows.length === 0) {
+            showToast("لم يتم العثور على صفوف في ملف الإكسيل.", "warn");
+            return;
+          }
+
+          // عرض نافذة معاينة واستيراد محدد
+          const existing = document.getElementById("excelPreviewModal");
+          if (existing) existing.remove();
+          const modal = document.createElement("div");
+          modal.id = "excelPreviewModal";
+          modal.style =
+            "position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:14000;display:flex;align-items:center;justify-content:center;padding:24px;";
+          const box = document.createElement("div");
+          box.style =
+            "width:760px;max-width:96%;background:var(--card);color:var(--muted);border-radius:8px;padding:12px;max-height:80vh;overflow:auto;";
+          let html = `<div style="display:flex;justify-content:space-between;align-items:center"><strong style="color:var(--primary)">معاينة الاستيراد</strong><div><button id="closeExcelPreview" class="ghost">إغلاق</button></div></div>`;
+          html += `<p class="small" style="margin-top:8px;color:var(--muted)">اختر الصف الذي تريد تحميل بياناته في النموذج (لن يحفظ مباشرة إلا بعد الضغط على حفظ).</p>`;
+          html += `<div style="margin-top:10px">`;
+          const previewCount = Math.min(rows.length, 20);
+          for (let i = 0; i < previewCount; i++) {
+            const r = rows[i];
+            html += `<div style="padding:8px;border-radius:6px;background:rgba(255,255,255,0.02);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+                <div style="flex:1"><strong>${escapeHtml(
+                  r.name || r["الاسم"] || r["Name"] || ""
+                )}</strong><div class="small" style="color:var(--muted)">${escapeHtml(
+              r.phone || r["phone"] || ""
+            )} · ${escapeHtml(r.nid || r["nid"] || "")}</div></div>
+                <div style="display:flex;gap:8px">
+                  <button data-idx="${i}" class="btnImportRow" style="padding:6px 8px">استيراد إلى النموذج</button>
+                </div>
+              </div>`;
+          }
+          if (rows.length > previewCount) {
+            html += `<div class="small" style="color:var(--muted)">عرض ${previewCount} من ${rows.length} صفوف فقط.</div>`;
+          }
+          html += `</div>`;
+          box.innerHTML = html;
+          modal.appendChild(box);
+          document.body.appendChild(modal);
+
+          document.getElementById("closeExcelPreview").onclick = () =>
+            modal.remove();
+
+          Array.from(box.querySelectorAll(".btnImportRow")).forEach((btn) => {
+            btn.onclick = function () {
+              const idx = parseInt(this.getAttribute("data-idx"), 10);
+              const row = rows[idx];
+              if (!row) return;
+              // mapping: دعم أسماء أعمدة بالإنجليزية أو العربية أو المفردات المختصرة
+              const map = (keys) => {
+                for (const k of keys) {
+                  if (row[k] !== undefined && row[k] !== null) return row[k];
+                }
+                return "";
+              };
+              const f = {
+                name: map(["name", "الاسم", "Name"]),
+                phone: map(["phone", "الهاتف", "رقم الهاتف", "Phone"]),
+                phone2: map(["phone2", "الهاتف2", "phone2"]),
+                nid: map(["nid", "الرقم القومي", "NationalID"]),
+                passport: map(["passport", "جواز", "passport"]),
+                address: map(["address", "العنوان", "Address"]),
+                travelDate: map(["travelDate", "تاريخ السفر", "TravelDate"]),
+                returnDate: map(["returnDate", "تاريخ العودة", "ReturnDate"]),
+                roomType: map(["roomType", "نوع التسكين"]),
+                transport: map(["transport", "وسيلة السفر", "Transport"]),
+                hotelMakkah: map(["hotelMakkah", "فندق مكة"]),
+                hotelMadina: map(["hotelMadina", "فندق المدينة"]),
+                price: map(["price", "السعر", "Price"]),
+              };
+              // populate form fields
+              Object.keys(f).forEach((k) => {
+                const el = document.getElementById(k);
+                if (!el) return;
+                el.value = f[k];
+                // trigger input events if needed
+                el.dispatchEvent(new Event("input", { bubbles: true }));
+              });
+              showToast(
+                "تم تعبئة النموذج من الصف المحدد. راجع ثم احفظ.",
+                "success"
+              );
+              modal.remove();
+            };
+          });
+        } catch (err) {
+          console.error("Import preview failed", err);
+          showToast("فشل قراءة ملف الإكسيل. افتح Console للمزيد.", "error");
+        }
+      }
+
+      // override small triggerImportExcel to use preview flow
+      function triggerImportExcel() {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = ".xlsx,.xls";
+        input.onchange = function (e) {
+          const f = e.target.files && e.target.files[0];
+          if (!f) return;
+          importExcelAndPreview(f);
+        };
+        input.click();
+      }
+
+      // إعادة ربط زر "إدارة العقود" للتأكد يفتح المودال الصحيح
+      const manageBtn = document.getElementById("btnManage");
+      if (manageBtn) {
+        manageBtn.onclick = function () {
+          if (!requireLogin()) {
+            showToast("يجب تسجيل الدخول لعرض إدارة العقود", "warn");
+            return;
+          }
+          createContractsModal(); // createContractsModal === createContractsModalAdvanced (مصدّر سابقاً)
+        };
+      }
+
+      // إضافة زر تحميل نموذج إكسيل داخل المودال إن لم يكن مُضافاً
+      // نعدل createContractsModal إذا كانت موجودة لتعطي الزر downloadTemplate
+      (function patchContractsModalButtons() {
+        // إذا كانت دالة createContractsModal موجودة (النسخة المتقدمة)، نلفها لإضافة زر جديد
+        if (typeof window.createContractsModal === "function") {
+          const orig = window.createContractsModal;
+          window.createContractsModal = function () {
+            orig();
+            // بعد إنشاء المودال، أضف زر تحميل القالب قبل أزرار التصدير إن لم يكن موجوداً
+            const box = document.querySelector("#contractsModal div");
+            if (!box) return;
+            if (!document.getElementById("downloadTemplate")) {
+              const headerActions = box.querySelector("div > div");
+              if (headerActions) {
+                const btn = document.createElement("button");
+                btn.id = "downloadTemplate";
+                btn.className = "ghost";
+                btn.textContent = "تحميل نموذج إكسيل";
+                btn.style.marginLeft = "8px";
+                btn.onclick = downloadExcelTemplate;
+                headerActions.insertBefore(btn, headerActions.firstChild);
+              }
+              // also add quick "استيراد" button
+              if (!document.getElementById("quickImportBtn")) {
+                const quick = document.createElement("button");
+                quick.id = "quickImportBtn";
+                quick.className = "ghost";
+                quick.textContent = "استيراد XLSX";
+                quick.style.marginLeft = "8px";
+                quick.onclick = triggerImportExcel;
+                const headerActions = box.querySelector("div > div");
+                if (headerActions)
+                  headerActions.insertBefore(quick, headerActions.firstChild);
+              }
+            }
+          };
+        }
+      })();
+    </script>
+  </body>
+</html>
