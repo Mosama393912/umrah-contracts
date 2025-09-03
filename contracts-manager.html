@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ar">
+  <head>
+    <meta charset="UTF-8" />
+    <title>إدارة العقود</title>
+    <script src="https://unpkg.com/idb@7/build/iife/index-min.js"></script>
+    <style>
+      body {
+        font-family: "Cairo", sans-serif;
+        padding: 20px;
+        background: #f9f9f9;
+      }
+      h2 {
+        color: #333;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+      }
+      li {
+        background: #fff;
+        margin: 10px 0;
+        padding: 10px;
+        border: 1px solid #ddd;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>العقود المسجلة</h2>
+    <ul id="contracts-list">
+      جارٍ التحميل...
+    </ul>
+
+    <script>
+      const dbPromise = idb.openDB("umrahContracts", 1);
+
+      async function loadContracts() {
+        const db = await dbPromise;
+        const contracts = await db.getAll("contracts");
+        const list = document.getElementById("contracts-list");
+        list.innerHTML = "";
+        if (contracts.length === 0) {
+          list.innerHTML = "<li>لا توجد عقود مسجلة حالياً.</li>";
+          return;
+        }
+        contracts.forEach((contract) => {
+          const li = document.createElement("li");
+          li.innerHTML = `
+          <strong>الاسم:</strong> ${contract.fullName}<br>
+          <strong>تاريخ السفر:</strong> ${contract.travelDate}<br>
+          <strong>السعر:</strong> ${contract.price} جنيه
+        `;
+          list.appendChild(li);
+        });
+      }
+
+      loadContracts();
+    </script>
+  </body>
+</html>
